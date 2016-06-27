@@ -15,6 +15,8 @@ import re
 import sys
 import time
 from IPy import IPy
+from api import BingSearch
+from config import ENABLE_API
 
 queue = Queue.Queue()
 ips = set()
@@ -27,18 +29,30 @@ def scan():
     while 1:
         if queue.qsize() > 0:
             ip = queue.get()
-            q = "https://www.bing.com/search?q=ip%3A" + ip
-            c = requests.get(q, headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0'}).content
-            p = re.compile(r'<cite>(.*?)</cite>')
-            l = re.findall(p, c)
-            for each in l:
-                domain = each.split('://')[-1].split('/')[0]
-                msg = ip + ' -> ' + domain
-                ips.add(msg)
+            if ENABLE_API:
+                ans_obj = BingSearch("ip:" + ip)
+                for each in ans_obj['d']['results']:
+                    ips.add(ip + ' -> ' + each['Url'].split('://')[-1].split('/')[0] + " | " + each['Title'])
+            else:
+                q = "https://www.bing.com/search?q=ip%3A" + ip
+                c = requests.get(q, headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0'}).content
+                p = re.compile(r'<cite>(.*?)</cite>')
+                l = re.findall(p, c)
+                for each in l:
+                    domain = each.split('://')[-1].split('/')[0]
+                    msg = ip + ' -> ' + domain
+                    ips.add(msg)
         else:
             thread_num -= 1
             break
+
+
+def api_scan():
+    global thread_num
+    while 1:
+        if queue.qsize() > 0:
+            BingSearch(queue.get())
 
 
 def setThreadDaemon(thread):
@@ -51,7 +65,7 @@ def setThreadDaemon(thread):
 
 
 def runThreads():
-    print 'Running...'
+    print "Running..."
     for i in range(thread_num):
         t = threading.Thread(target=scan, name=str(i))
         setThreadDaemon(t)
@@ -77,7 +91,10 @@ if __name__ == "__main__":
 
     runThreads()
     for each in ips:
-        print each
+        try:
+            print each
+        except UnicodeEncodeError:
+            pass
     print "Total: " + str(len(ips))
 
     if len(sys.argv) is 3:
