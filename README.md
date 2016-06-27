@@ -55,7 +55,7 @@ Running...
 -------------
 注意以下步骤在选择地区时都**不要选择中国**，其余随意  
 1. `https://login.live.com`注册并登陆  
-2. `https://datamarket.azure.com/dataset/bing/search` 再注册为“开发人员”，并登陆  
+2. `https://datamarket.azure.com/dataset/bing/search` 再注册为“开发人员”，登陆后购买每月5000条的免费套餐。  
 3. `https://datamarket.azure.com/account` 点右上部分的`My Account`或者`我的账户`  
 4. 在该页面下方找`主账户秘钥`或者`Primary AccountKey`  
 5. 复制到`config.py`相应位置，并设置`ENABLE_API = True`即可  
