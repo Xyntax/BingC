@@ -30,6 +30,7 @@ def scan():
         if queue.qsize() > 0:
             ip = queue.get()
             if ENABLE_API:
+                print "[*]api enabled!"
                 ans_obj = BingSearch("ip:" + ip)
                 for each in ans_obj['d']['results']:
                     ips.add(ip + ' -> ' + each['Url'].split('://')[-1].split('/')[0] + " | " + each['Title'])
